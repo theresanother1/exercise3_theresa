@@ -2,6 +2,11 @@ package at.ac.fhcampuswien.newsanalyzer.ui;
 
 
 import at.ac.fhcampuswien.newsanalyzer.ctrl.Controller;
+import at.ac.fhcampuswien.newsapi.NewsApi;
+import at.ac.fhcampuswien.newsapi.NewsApiBuilder;
+import at.ac.fhcampuswien.newsapi.enums.Category;
+import at.ac.fhcampuswien.newsapi.enums.Country;
+import at.ac.fhcampuswien.newsapi.enums.Endpoint;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,16 +18,42 @@ public class UserInterface
 
 	public void getDataFromCtrl1(){
 		System.out.println("ABC");
-
+		NewsApi firstOption = new NewsApiBuilder()
+				.setApiKey(Controller.APIKEY)
+				.setQ("Corona")
+				.setEndPoint(Endpoint.TOP_HEADLINES)
+				.setSourceCountry(Country.at)
+				.setSourceCategory(Category.science)
+				.createNewsApi();
+		ctrl.setData(firstOption);
 		ctrl.process();
 	}
 
 	public void getDataFromCtrl2(){
-		// TODO implement me
+		// TODO implement
+		NewsApi secondOption = new NewsApiBuilder()
+				.setApiKey(Controller.APIKEY)
+				.setQ("IT")
+				.setEndPoint(Endpoint.TOP_HEADLINES)
+				.setSourceCountry(Country.at)
+				.setSourceCategory(Category.technology)
+				.createNewsApi();
+		ctrl.setData(secondOption);
+		ctrl.process();
 	}
 
 	public void getDataFromCtrl3(){
 		// TODO implement me
+		NewsApi thirdOption = new NewsApiBuilder()
+				.setApiKey(Controller.APIKEY)
+				.setQ("Business")
+				.setEndPoint(Endpoint.TOP_HEADLINES)
+				.setSourceCountry(Country.at)
+				.setSourceCategory(Category.business)
+				.createNewsApi();
+		ctrl.setData(thirdOption);
+		ctrl.process();
+
 	}
 	
 	public void getDataForCustomInput() {
@@ -33,9 +64,9 @@ public class UserInterface
 	public void start() {
 		Menu<Runnable> menu = new Menu<>("User Interface");
 		menu.setTitle("Wählen Sie aus:");
-		menu.insert("a", "Choice ABC", this::getDataFromCtrl1);
-		menu.insert("b", "Choice DEF", this::getDataFromCtrl2);
-		menu.insert("c", "Choice 3", this::getDataFromCtrl3);
+		menu.insert("a", "Choice Corona", this::getDataFromCtrl1);
+		menu.insert("b", "Choice IT", this::getDataFromCtrl2);
+		menu.insert("c", "Choice Business", this::getDataFromCtrl3);
 		menu.insert("d", "Choice User Input:",this::getDataForCustomInput);
 		menu.insert("q", "Quit", null);
 		Runnable choice;

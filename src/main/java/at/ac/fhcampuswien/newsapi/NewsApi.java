@@ -5,11 +5,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import at.ac.fhcampuswien.newsapi.beans.NewsResponse;
 import at.ac.fhcampuswien.newsapi.enums.*;
+import org.json.JSONException;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 
 
 public class NewsApi {
@@ -114,15 +113,16 @@ public class NewsApi {
         this.endpoint = endpoint;
     }
 
-    protected String requestData() {
+    protected String requestData() throws NewsApiException{
         String url = buildURL();
         System.out.println("URL: " + url);
         URL obj = null;
         try {
             obj = new URL(url);
         } catch (MalformedURLException e) {
+            throw new NewsApiException("Cannot use URL, please check API-URL");
             // TODO improve ErrorHandling
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         HttpURLConnection con;
         StringBuilder response = new StringBuilder();
@@ -136,15 +136,21 @@ public class NewsApi {
             in.close();
         } catch (IOException e) {
             // TODO improve ErrorHandling
-            System.out.println("Error "+e.getMessage());
+            throw new NewsApiException("Could not read Input Stream.");
+            //System.out.println("Error "+e.getMessage());
         }
         return response.toString();
     }
 
-    protected String buildURL() {
+    protected String buildURL() throws NewsApiException{
         // TODO ErrorHandling
         String urlbase = String.format(NEWS_API_URL,getEndpoint().getValue(),getQ(),getApiKey());
-        StringBuilder sb = new StringBuilder(urlbase);
+        StringBuilder sb;
+        try {
+             sb = new StringBuilder(urlbase);
+        } catch (NullPointerException n){
+            throw new NewsApiException("Cannot build URL with empty URL-Base String");
+        }
 
         System.out.println(urlbase);
 
@@ -184,9 +190,30 @@ public class NewsApi {
         return sb.toString();
     }
 
-    public NewsResponse getNews() {
+    public NewsResponse getNews() throws NewsApiException{
         NewsResponse newsReponse = null;
-        String jsonResponse = requestData();
+        String jsonResponse;
+
+        try {
+            jsonResponse= requestData();
+        } catch (NullPointerException n){
+            throw new NewsApiException("JsonResponse could not be initialized & is not allowed to be NULL");
+        }
+        if(!jsonResponse.isEmpty()){
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                newsReponse = objectMapper.readValue(jsonResponse, NewsResponse.class);
+                if(!"ok".equals(newsReponse.getStatus())){
+                    System.out.println("Error: "+newsReponse.getStatus());
+                }
+            }
+
+            catch (JsonProcessingException e) {
+                throw new NewsApiException("The JSON File could not be processed properly.");
+               // System.out.println("Error: "+e.getMessage());
+            }
+        }
+       /* String jsonResponse = requestData();
         if(jsonResponse != null && !jsonResponse.isEmpty()){
 
             ObjectMapper objectMapper = new ObjectMapper();
@@ -198,7 +225,7 @@ public class NewsApi {
             } catch (JsonProcessingException e) {
                 System.out.println("Error: "+e.getMessage());
             }
-        }
+        }*/
         //TODO improve Errorhandling
         return newsReponse;
     }
