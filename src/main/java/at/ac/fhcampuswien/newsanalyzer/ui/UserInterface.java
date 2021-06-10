@@ -7,10 +7,12 @@ import at.ac.fhcampuswien.newsapi.NewsApiBuilder;
 import at.ac.fhcampuswien.newsapi.enums.Category;
 import at.ac.fhcampuswien.newsapi.enums.Country;
 import at.ac.fhcampuswien.newsapi.enums.Endpoint;
+import at.ac.fhcampuswien.newsapi.enums.Language;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Scanner;
 
 public class UserInterface 
 {
@@ -57,9 +59,64 @@ public class UserInterface
 	}
 	
 	public void getDataForCustomInput() {
+		Category curCat = getCategory();
+		String userQuery = "";
+		System.out.println("Please enter your Query: ");
+		Scanner scanner = new Scanner(System.in);
+		userQuery = scanner.next();
+
+		NewsApi thirdOption = new NewsApiBuilder()
+				.setApiKey(Controller.APIKEY)
+				.setQ(userQuery)
+				.setLanguage(Language.en)
+				.setEndPoint(Endpoint.TOP_HEADLINES)
+				.setSourceCountry(Country.au)
+				.setSourceCategory(curCat)
+				.createNewsApi();
+		ctrl.setData(thirdOption);
+		ctrl.process();
+
+
+
+
 		// TODO implement me
 	}
 
+	public Category getCategory(){
+		Category category[] = Category.values();
+		System.out.println("Please choose one of the following Categories");
+		int k = 1;
+		for (Category value : category) {
+			System.out.println(k + " " + value);
+			k++;
+		}
+		Scanner custom1 = new Scanner(System.in);
+		int next = custom1.nextInt();
+
+		Category customCat = Category.entertainment;
+
+		switch (next) {
+			case 1:
+				customCat = Category.business;
+				break;
+			case 2:
+				customCat = Category.entertainment;
+				break;
+			case 3:
+				customCat = Category.health;
+				break;
+			case 4:
+				customCat = Category.science;
+				break;
+			case 5:
+				customCat = Category.sports;
+				break;
+			case 6:
+				customCat = Category.technology;
+				break;
+		}
+		return customCat;
+	}
 
 	public void start() {
 		Menu<Runnable> menu = new Menu<>("User Interface");
