@@ -4,8 +4,10 @@ import at.ac.fhcampuswien.newsapi.NewsApi;
 import at.ac.fhcampuswien.newsapi.NewsApiException;
 import at.ac.fhcampuswien.newsapi.beans.Article;
 import at.ac.fhcampuswien.newsapi.beans.NewsResponse;
+import at.ac.fhcampuswien.newsapi.beans.Source;
 
 
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -25,6 +27,7 @@ public class Controller {
 
 		//TODO implement Error handling
 
+
 		NewsResponse newsResponse = null;
 		List<Article> articles = null;
 		try {
@@ -39,46 +42,59 @@ public class Controller {
 			n.printStackTrace();
 		}
 		if (articles != null && articles.size() != 0) {
+			/*articles.stream()
+					.forEach(article -> System.out.println(article.toString()));*/
+
+			/**
+			 * Verbessern auf nur Artikel Content - nicht gesamtes HTML Template der Website
+			 */
+
+			System.out.println("Articles: ");
 			articles.stream()
-					.forEach(article -> System.out.println(article.toString()));
+					.forEach(article -> {
+						System.out.println(article.getSource().getName());
+						System.out.println(article.getTitle());
+						try {
+							System.out.println(article.getContent(article.getUrl()));
+						} catch (IOException ioException){
+							System.out.println("Couldn't read URL.");
+							ioException.printStackTrace();
+						}
+
+						System.out.println();
+					});
 
 
-			//TODO load the news based on the parameters
 
 			//TODO implement methods for analysis
 			//count number of articles
+			//sum = articles.size();
 			long sum = articles.stream()
 					.count();
-			System.out.println(sum);
+			System.out.println("Number of articles: "+sum);
 
 
 			//get provider with most articles
-			//gelöst anhand Unterlagen/Internetquellen wie:
+			//gelöst anhand Unterlagen/Internetquellen wie zB:
 			//https://mkyong.com/java8/java-8-collectors-groupingby-and-mapping-example/
-
-			String providesMostArticles = "No provider found";
-			try {
-				providesMostArticles = getProviderWithMostArticles(articles);
-			} catch (NullPointerException ne){
-				System.out.println("Couldn't determine provider with most articles.");
-				ne.printStackTrace();
-			}
+			String providesMostArticles = getProviderWithMostArticles(articles);
 			System.out.println("Provides most Articles: " + providesMostArticles);
 
 			//get author with shortest name
-
-			String shortestAuthorName = "";
-			try {
-				shortestAuthorName = getShortestAuthorName(articles);
-			} catch (NullPointerException ne){
-				System.out.println("Couldn't determine the shortest Author.");
-				ne.printStackTrace();
-			}
-
-			System.out.println(shortestAuthorName);
+			String shortestAuthorName = getShortestAuthorName(articles);
+			System.out.println("Has shortest Name:" +shortestAuthorName);
 
 			// d? - was ist das gewünschte Ergebnis
 
+			List<Article> sortedList = getSortedList(articles);
+			if (sortedList.get(0).getTitle().equals("no title")) {
+				System.out.println("Sorted List not found");
+			} else {
+				System.out.println("Sorted list: ");
+				sortedList.forEach(article ->
+						System.out.println( article.getTitle())
+				);
+			}
 		} else{
 			System.out.println("No articles for your query found, please try again.");
 		}
@@ -87,8 +103,8 @@ public class Controller {
 		System.out.println("End process");
 	}
 
-	public String getProviderWithMostArticles(List<Article> articles) throws NullPointerException{
-		return articles.stream()
+	public String getProviderWithMostArticles(List<Article> articles) {
+		Optional<Map.Entry<String, Long>> curArt = articles.stream()
 				.filter(name -> name.getSource().getName() != null)
 				.map(article -> article.getSource().getName())
 				.collect(
@@ -99,29 +115,34 @@ public class Controller {
 				.entrySet()
 				.stream()
 				//.sorted(Map.Entry.comparingByValue())
-				.max(Map.Entry.comparingByValue())
-				.get()
-				.getKey();
+				.max(Map.Entry.comparingByValue());
+		return curArt.isPresent() ? curArt.get().toString() : "Provider not found";
 	}
 
-	public String getShortestAuthorName(List<Article> articles) throws NullPointerException {
-		Comparator<Article> byAuthorLength = (a1, a2) -> a1.getAuthor().length() >= a2.getAuthor().length() ? -1 : 1;
-		String shortest = "No Author found";
-		if (articles.size() == 1){
-			shortest = articles.get(0).getAuthor();
-			if (shortest==null||shortest.equals("null")){
-				shortest = "We couldn't determine the author.";
+	public String getShortestAuthorName(List<Article> articles){
+		if (articles.get(0).getAuthor()==null && articles.size() == 1 ){
+				return "Shortest Author not found";
 			}
-		} else {
-			Optional<Article> author = articles.stream()
-					.filter(e -> e.getAuthor() != null)
-					.sorted(byAuthorLength.reversed())
-					.findFirst();
-			shortest = author.get().getAuthor();
-		}
-		return shortest;
+		Optional<Article> author = articles.stream()
+				.filter(e -> e.getAuthor() != null)
+				.max(Comparator.comparing(Article::getAuthor));
+		return author.isPresent() ? author.get().getAuthor() : "Shortest Author not found";
 	}
 
+	public List<Article> getSortedList(List<Article> articles){
+		Comparator<Article> byTitleLength = (title1, title2) ->
+				title1.getTitle().length() >= title2.getTitle().length() ? -1 : 1;
+		List<Article> dummy = new ArrayList<>();
+		dummy.add(new Article(new Source(), "no author", "no title", "no desc",
+				"no url", "no urlToImg", "no publishedAt", "no content"));
+
+		List<Article> sortedList = articles.stream()
+				.filter(art -> art.getTitle() != null)
+				.sorted(Comparator.comparing(Article::getTitle))
+				.sorted(byTitleLength)
+				.collect(Collectors.toList());
+		return sortedList.isEmpty() ? dummy : sortedList;
+	}
 
 	//added to set NewsAPI to get current response from API
 	public void setData(NewsApi myNewsAPI){

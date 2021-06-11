@@ -142,6 +142,7 @@ public class NewsApi {
         return response.toString();
     }
 
+
     protected String buildURL() throws NewsApiException{
         // TODO ErrorHandling
         String urlbase = String.format(NEWS_API_URL,getEndpoint().getValue(),getQ(),getApiKey());

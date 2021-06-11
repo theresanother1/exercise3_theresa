@@ -1,8 +1,15 @@
 package at.ac.fhcampuswien.newsapi.beans;
 
 
+import at.ac.fhcampuswien.newsapi.NewsApiException;
 import com.fasterxml.jackson.annotation.*;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -173,10 +180,84 @@ public class Article {
         return this;
     }
 
-    @JsonProperty("content")
+/*    @JsonProperty("content")
     public String getContent() {
         return content;
+    }*/
+
+    /**
+     * Lädt kompletten HTML code der URL
+     */
+    @JsonProperty("content")
+    public String getContent(String contentURL) throws IOException {
+        URL url;
+            // get URL content
+            url = new URL(contentURL);
+            URLConnection conn = url.openConnection();
+
+            // open the stream and put it into BufferedReader
+
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream()));
+
+            String inputLine;
+            while ((inputLine = br.readLine()) != null) {
+                System.out.println(inputLine);
+            }
+            br.close();
+
+            System.out.println("Done");
+
+
+
+
+
+
+
+/*
+        HttpURLConnection con;
+        StringBuilder response = new StringBuilder();
+        try {
+            con = (HttpURLConnection) obj.openConnection();
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+        } catch (IOException e) {
+            // TODO improve ErrorHandling
+            throw new NewsApiException("Could not read Input Stream.");
+            //System.out.println("Error "+e.getMessage());
+        }
+        NewsResponse newsReponse = null;
+        String jsonResponse;
+
+        try {
+            jsonResponse= requestData();
+        } catch (NullPointerException n){
+            throw new NewsApiException("JsonResponse could not be initialized & is not allowed to be NULL");
+        }
+        if(!jsonResponse.isEmpty()){
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                newsReponse = objectMapper.readValue(jsonResponse, NewsResponse.class);
+                if(!"ok".equals(newsReponse.getStatus())){
+                    System.out.println("Error: "+newsReponse.getStatus());
+                }
+            }
+
+            catch (JsonProcessingException e) {
+                throw new NewsApiException("The JSON File could not be processed properly.");
+                // System.out.println("Error: "+e.getMessage());
+            }
+        }
+
+*/
+        return content;
     }
+
+
 
     @JsonProperty("content")
     public void setContent(String content) {
