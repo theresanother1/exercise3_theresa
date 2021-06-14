@@ -76,12 +76,11 @@ public class UserInterface
 		ctrl.setData(thirdOption);
 		ctrl.process();
 
-
-
-
 		// TODO implement me
 	}
 
+
+	//added to get Category from User
 	public Category getCategory(){
 		Category category[] = Category.values();
 		System.out.println("Please choose one of the following Categories");
@@ -96,23 +95,17 @@ public class UserInterface
 		Category customCat = Category.entertainment;
 
 		switch (next) {
-			case 1:
-				customCat = Category.business;
+			case 1: customCat = Category.business;
 				break;
-			case 2:
-				customCat = Category.entertainment;
+			case 2: customCat = Category.entertainment;
 				break;
-			case 3:
-				customCat = Category.health;
+			case 3: customCat = Category.health;
 				break;
-			case 4:
-				customCat = Category.science;
+			case 4: customCat = Category.science;
 				break;
-			case 5:
-				customCat = Category.sports;
+			case 5: customCat = Category.sports;
 				break;
-			case 6:
-				customCat = Category.technology;
+			case 6: customCat = Category.technology;
 				break;
 		}
 		return customCat;

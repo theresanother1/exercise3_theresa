@@ -12,7 +12,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.groupingBy;
 
 public class Controller {
 
@@ -21,7 +20,6 @@ public class Controller {
 	//added NewsApi to get current values
 	private NewsApi current = null;
 
-//String option, String Category übergeben möglich
 	public void process() {
 		System.out.println("Start process");
 
@@ -30,10 +28,19 @@ public class Controller {
 
 		NewsResponse newsResponse = null;
 		List<Article> articles = null;
-		try {
-			newsResponse = current.getNews();
-			articles  = newsResponse.getArticles();
+		NewsApi newOne = null;
 
+		// first try get a not NULL NewsAPI template
+		try {
+			newOne = getNewsAPIData();
+		} catch (NullPointerException nullPointerException){
+			System.out.println("NewsAPI cannot be empty.");
+			nullPointerException.printStackTrace();
+		}
+
+		//next try to get a not NULL NewsResponse based on NewsAPI
+		try {
+			newsResponse = newOne.getNews();
 		} catch (NewsApiException e) {
 			System.out.println("NewsResponse cannot be empty.");
 			e.printStackTrace();
@@ -41,7 +48,18 @@ public class Controller {
 			System.out.println("NewsResponse cannot be NULL");
 			n.printStackTrace();
 		}
-		if (articles != null && articles.size() != 0) {
+
+		//next try to get the Articles from NewsResponse saved in a List
+		try{
+			articles  = newsResponse.getArticles();
+		} catch (NullPointerException nullPointerException){
+			System.out.println("Probably NewsResponse was NULL, so no articles could be fetched.");
+			nullPointerException.printStackTrace();
+		}
+
+
+		assert articles != null;
+		if (articles.size() != 0) {
 			/*articles.stream()
 					.forEach(article -> System.out.println(article.toString()));*/
 
@@ -54,19 +72,26 @@ public class Controller {
 					.forEach(article -> {
 						System.out.println(article.getSource().getName());
 						System.out.println(article.getTitle());
-						try {
+						/*try {
 							System.out.println(article.getContent(article.getUrl()));
 						} catch (IOException ioException){
 							System.out.println("Couldn't read URL.");
 							ioException.printStackTrace();
-						}
+						}*/
+						System.out.println(article.getContent());
 
 						System.out.println();
 					});
 
-
+			Article writeArticle = articles.get(0);
+			try {
+				writeArticle.getContent(writeArticle.getUrl(), "NewsHTMLFile2");
+			} catch (IOException ioException) {
+				ioException.printStackTrace();
+			}
 
 			//TODO implement methods for analysis
+
 			//count number of articles
 			//sum = articles.size();
 			long sum = articles.stream()
@@ -150,9 +175,11 @@ public class Controller {
 	}
 
 	//returns current NewsAPI
-	public Object getData() {
+	public NewsApi getNewsAPIData() throws NullPointerException{
 		return current;
 	}
 
-
+	public Object getData(){
+		return null;
+	}
 }

@@ -4,12 +4,12 @@ package at.ac.fhcampuswien.newsapi.beans;
 import at.ac.fhcampuswien.newsapi.NewsApiException;
 import com.fasterxml.jackson.annotation.*;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -189,7 +189,10 @@ public class Article {
      * Lädt kompletten HTML code der URL
      */
     @JsonProperty("content")
-    public String getContent(String contentURL) throws IOException {
+    public String getContent(String contentURL, String filename) throws IOException {
+
+
+
         URL url;
             // get URL content
             url = new URL(contentURL);
@@ -201,9 +204,25 @@ public class Article {
                     new InputStreamReader(conn.getInputStream()));
 
             String inputLine;
-            while ((inputLine = br.readLine()) != null) {
-                System.out.println(inputLine);
+            Path myPath = Paths.get(".././exercise3_theresa/src/main/resources/"+filename+".html");
+            File newHTMLFile = new File(filename+".html");
+            FileWriter creatingFile = new FileWriter(newHTMLFile.getPath());
+            BufferedWriter bufferedWriter = null;
+            try {
+                FileOutputStream fileStream = new FileOutputStream(newHTMLFile);
+                OutputStreamWriter streamWriter = new OutputStreamWriter(fileStream);
+                bufferedWriter = new BufferedWriter(streamWriter);
+            } catch (IOException ioException){
+                System.out.println("Something went wrong");
+                ioException.printStackTrace();
             }
+
+            while ((inputLine = br.readLine()) != null) {
+                assert bufferedWriter != null;
+                bufferedWriter.write(inputLine);
+                //System.out.println(inputLine);
+            }
+
             br.close();
 
             System.out.println("Done");
@@ -254,6 +273,10 @@ public class Article {
         }
 
 */
+        return content;
+    }
+    @JsonProperty("content")
+    public String getContent(){
         return content;
     }
 
