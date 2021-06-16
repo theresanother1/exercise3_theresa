@@ -163,7 +163,7 @@ public class Controller {
 
 		List<Article> sortedList = articles.stream()
 				.filter(art -> art.getTitle() != null)
-				.sorted(Comparator.comparing(Article::getTitle))
+				.sorted(Comparator.comparing(Article::getTitle).reversed())
 				.sorted(byTitleLength)
 				.collect(Collectors.toList());
 		return sortedList.isEmpty() ? dummy : sortedList;
