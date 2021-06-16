@@ -1,5 +1,6 @@
 package at.ac.fhcampuswien.newsapi.beans;
 
+import at.ac.fhcampuswien.newsapi.NewsApiException;
 import com.fasterxml.jackson.annotation.*;
 
 import java.util.HashMap;
@@ -74,7 +75,11 @@ public class NewsResponse {
     }
 
     @JsonProperty("articles")
-    public List<Article> getArticles() {
+    public List<Article> getArticles() throws NewsApiException {
+        if (articles == null){
+            throw new NewsApiException("Could not invoke Articles.");
+        }
+
         return articles;
     }
 

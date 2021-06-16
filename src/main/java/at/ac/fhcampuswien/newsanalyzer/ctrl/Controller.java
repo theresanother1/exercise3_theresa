@@ -52,14 +52,17 @@ public class Controller {
 		//next try to get the Articles from NewsResponse saved in a List
 		try{
 			articles  = newsResponse.getArticles();
-		} catch (NullPointerException nullPointerException){
+		} catch (NewsApiException newsApiException){
 			System.out.println("Probably NewsResponse was NULL, so no articles could be fetched.");
-			nullPointerException.printStackTrace();
+			newsApiException.printStackTrace();
+		}catch (NullPointerException n){
+			System.out.println("NewsResponse cannot be NULL");
+			n.printStackTrace();
 		}
 
 
-		assert articles != null;
-		if (articles.size() != 0) {
+		//assert articles != null;
+		//if (articles.size() != 0) {
 			/*articles.stream()
 					.forEach(article -> System.out.println(article.toString()));*/
 
@@ -83,11 +86,32 @@ public class Controller {
 						System.out.println();
 					});
 
-			Article writeArticle = articles.get(0);
+		/*	= null;
+			if (articles != null && !articles.isEmpty()){
+			}
+			String articleURL = null;
+
 			try {
-				writeArticle.getContent(writeArticle.getUrl(), "NewsHTMLFile2");
-			} catch (IOException ioException) {
-				ioException.printStackTrace();
+
+			} catch	(NullPointerException nullPointerException){
+				System.out.println("Article is NULL.");
+				nullPointerException.printStackTrace();
+			}*/
+			if (!articles.isEmpty()) {
+				try {
+					Article writeArticle;
+					writeArticle = articles.get(0);
+					//articleURL = writeArticle.getUrl();
+					writeArticle.getContent(writeArticle.getUrl(), "NewsHTMLFile3");
+				} catch (IOException ioException) {
+					ioException.printStackTrace();
+				} catch (NullPointerException nullPointerException) {
+					System.out.println("Articles cannot be NULL.");
+					nullPointerException.printStackTrace();
+				} catch (Exception e) {
+					System.out.println("Something went wrong.");
+					e.printStackTrace();
+				}
 			}
 
 			//TODO implement methods for analysis
@@ -120,9 +144,9 @@ public class Controller {
 						System.out.println( article.getTitle())
 				);
 			}
-		} else{
+		/*} else{
 			System.out.println("No articles for your query found, please try again.");
-		}
+		}*/
 			// ADD-ON Originalartikel über HTTP URL in der Klasse Artikel herunterladen
 		//-> wie drauf zugreifen, was genau runterladen wo programmieren?
 		System.out.println("End process");
@@ -145,7 +169,10 @@ public class Controller {
 	}
 
 	public String getShortestAuthorName(List<Article> articles){
-		if (articles.get(0).getAuthor()==null && articles.size() == 1 ){
+		if (articles != null && articles.isEmpty()) {
+			return "Shortest Author not found.";
+		}
+		if (articles != null && articles.get(0).getAuthor()==null && articles.size() == 1 ){
 				return "Shortest Author not found";
 			}
 		Optional<Article> author = articles.stream()
@@ -155,7 +182,7 @@ public class Controller {
 	}
 
 	public List<Article> getSortedList(List<Article> articles){
-		Comparator<Article> byTitleLength = (title1, title2) ->
+		Comparator<Article> byTitleLexical = (title1, title2) ->
 				title1.getTitle().length() >= title2.getTitle().length() ? -1 : 1;
 		List<Article> dummy = new ArrayList<>();
 		dummy.add(new Article(new Source(), "no author", "no title", "no desc",
@@ -164,7 +191,7 @@ public class Controller {
 		List<Article> sortedList = articles.stream()
 				.filter(art -> art.getTitle() != null)
 				.sorted(Comparator.comparing(Article::getTitle).reversed())
-				.sorted(byTitleLength)
+				.sorted(byTitleLexical)
 				.collect(Collectors.toList());
 		return sortedList.isEmpty() ? dummy : sortedList;
 	}

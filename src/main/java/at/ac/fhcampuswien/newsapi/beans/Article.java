@@ -190,10 +190,7 @@ public class Article {
      */
     @JsonProperty("content")
     public String getContent(String contentURL, String filename) throws IOException {
-
-
-
-        URL url;
+            URL url;
             // get URL content
             url = new URL(contentURL);
             URLConnection conn = url.openConnection();

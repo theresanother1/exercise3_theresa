@@ -208,10 +208,12 @@ public class NewsApi {
                     System.out.println("Error: "+newsReponse.getStatus());
                 }
             }
-
             catch (JsonProcessingException e) {
                 throw new NewsApiException("The JSON File could not be processed properly.");
                // System.out.println("Error: "+e.getMessage());
+            }
+            catch (NullPointerException nullPointerException) {
+                throw new NewsApiException("JSON-Response could not be handled properly, must not be NULL.");
             }
         }
        /* String jsonResponse = requestData();
