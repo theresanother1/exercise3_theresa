@@ -28,7 +28,7 @@ public class UserInterface
 				.setSourceCategory(Category.science)
 				.createNewsApi();
 		ctrl.setData(firstOption);
-		ctrl.process();
+		ctrl.process("a");
 	}
 
 	public void getDataFromCtrl2(){
@@ -41,7 +41,7 @@ public class UserInterface
 				.setSourceCategory(Category.technology)
 				.createNewsApi();
 		ctrl.setData(secondOption);
-		ctrl.process();
+		ctrl.process("b");
 	}
 
 	public void getDataFromCtrl3(){
@@ -54,7 +54,7 @@ public class UserInterface
 				.setSourceCategory(Category.business)
 				.createNewsApi();
 		ctrl.setData(thirdOption);
-		ctrl.process();
+		ctrl.process("c");
 
 	}
 	
@@ -74,7 +74,7 @@ public class UserInterface
 				.setSourceCategory(curCat)
 				.createNewsApi();
 		ctrl.setData(thirdOption);
-		ctrl.process();
+		ctrl.process("d");
 
 		// TODO implement me
 	}
@@ -112,8 +112,8 @@ public class UserInterface
 	}
 
 	public void downloadLastSearch(){
-
-	}
+			ctrl.process("e");
+		}
 
 	public void start() {
 		Menu<Runnable> menu = new Menu<>("User Interface");

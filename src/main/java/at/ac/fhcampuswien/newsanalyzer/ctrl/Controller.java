@@ -1,6 +1,5 @@
 package at.ac.fhcampuswien.newsanalyzer.ctrl;
 
-import at.ac.fhcampuswien.newsanalyzer.downloader.ParallelDownloader;
 import at.ac.fhcampuswien.newsanalyzer.downloader.SequentialDownloader;
 import at.ac.fhcampuswien.newsapi.NewsApi;
 import at.ac.fhcampuswien.newsapi.NewsApiException;
@@ -9,7 +8,6 @@ import at.ac.fhcampuswien.newsapi.beans.NewsResponse;
 import at.ac.fhcampuswien.newsapi.beans.Source;
 
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -22,11 +20,11 @@ public class Controller {
     //added NewsApi to get current values
     private NewsApi current = null;
 
-    public void process() {
+    public void process(String option) {
         System.out.println("Start process");
 
-        //TODO implement Error handling
 
+        //TODO implement Error handling
 
         NewsResponse newsResponse = null;
         List<Article> articles = null;
@@ -63,39 +61,34 @@ public class Controller {
         }
 
 
+        if (articles != null && !articles.isEmpty()){
+            if (option.equals("e")){
+                downloadLastSearch(articles);
+            }
+            analyzeArticles(articles);
+        }
+
+        System.out.println("End process");
+    }
+
+    public void analyzeArticles (List<Article> articles){
         //assert articles != null;
         //if (articles.size() != 0) {
 			/*articles.stream()
 					.forEach(article -> System.out.println(article.toString()));*/
 
+        //articles could be null because initialized with null & might not be updated if exception is thrown
         if (articles != null && !articles.isEmpty()) {
-            List<String> urls = getListofURLs(articles);
-            System.out.println(urls);
-            //ca 3 secs für 20 artikel
-          /*  ParallelDownloader parallelDownloader = new ParallelDownloader();
-            parallelDownloader.process(urls);*/
 
-            //ca 13 secs für 20 Artikel
-            SequentialDownloader sequentialDownloader = new SequentialDownloader();
-            sequentialDownloader.process(urls);
-        }
+            System.out.println("Articles: ");
+            articles.stream()
+                    .forEach(article -> {
+                        System.out.println(article.getSource().getName());
+                        System.out.println(article.getTitle());
+                        System.out.println(article.getContent());
 
-
-        System.out.println("Articles: ");
-        articles.stream()
-                .forEach(article -> {
-                    System.out.println(article.getSource().getName());
-                    System.out.println(article.getTitle());
-						/*try {
-							System.out.println(article.getContent(article.getUrl()));
-						} catch (IOException ioException){
-							System.out.println("Couldn't read URL.");
-							ioException.printStackTrace();
-						}*/
-                    System.out.println(article.getContent());
-
-                    System.out.println();
-                });
+                        System.out.println();
+                    });
 
 
 
@@ -116,13 +109,13 @@ public class Controller {
 				}
 			}*/
 
-			//TODO implement methods for analysis
+            //TODO implement methods for analysis
 
-			//count number of articles
-			//sum = articles.size();
-			long sum = articles.stream()
-					.count();
-			System.out.println("Number of articles: "+sum);
+            //count number of articles
+            //sum = articles.size();
+            long sum = articles.stream()
+                    .count();
+            System.out.println("Number of articles: " + sum);
 
 /*
 			//get provider with most articles
@@ -145,13 +138,12 @@ public class Controller {
 				sortedList.forEach(article ->
 						System.out.println( article.getTitle())
 				);
-			}
-		/*} else{
-			System.out.println("No articles for your query found, please try again.");
-		}*/
-        // ADD-ON Originalartikel über HTTP URL in der Klasse Artikel herunterladen
-        //-> wie drauf zugreifen, was genau runterladen wo programmieren?
-        System.out.println("End process");
+			}*/
+        } else {
+            System.out.println("Problems analyzing your article.");
+        }
+
+
     }
 
     public String getProviderWithMostArticles(List<Article> articles) {
@@ -168,6 +160,18 @@ public class Controller {
                 //.sorted(Map.Entry.comparingByValue())
                 .max(Map.Entry.comparingByValue());
         return curArt.isPresent() ? curArt.get().toString() : "Provider not found";
+    }
+
+    public void downloadLastSearch(List<Article> articles) {
+        List<String> urls = getListofURLs(articles);
+        System.out.println(urls);
+        //ca 3 secs für 20 artikel
+          /*  ParallelDownloader parallelDownloader = new ParallelDownloader();
+            parallelDownloader.process(urls);*/
+
+        //ca 13 secs für 20 Artikel
+        SequentialDownloader sequentialDownloader = new SequentialDownloader();
+        sequentialDownloader.process(urls);
     }
 
     public String getShortestAuthorName(List<Article> articles) {
