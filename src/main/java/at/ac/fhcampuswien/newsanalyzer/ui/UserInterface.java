@@ -111,6 +111,10 @@ public class UserInterface
 		return customCat;
 	}
 
+	public void downloadLastSearch(){
+
+	}
+
 	public void start() {
 		Menu<Runnable> menu = new Menu<>("User Interface");
 		menu.setTitle("Wählen Sie aus:");
@@ -118,6 +122,7 @@ public class UserInterface
 		menu.insert("b", "Choice IT", this::getDataFromCtrl2);
 		menu.insert("c", "Choice Business", this::getDataFromCtrl3);
 		menu.insert("d", "Choice User Input:",this::getDataForCustomInput);
+		menu.insert("e", "Download Last Search:",this::downloadLastSearch);
 		menu.insert("q", "Quit", null);
 		Runnable choice;
 		while ((choice = menu.exec()) != null) {
