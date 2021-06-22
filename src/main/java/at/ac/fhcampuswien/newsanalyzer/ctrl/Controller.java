@@ -1,5 +1,6 @@
 package at.ac.fhcampuswien.newsanalyzer.ctrl;
 
+import at.ac.fhcampuswien.newsanalyzer.downloader.ParallelDownloader;
 import at.ac.fhcampuswien.newsanalyzer.downloader.SequentialDownloader;
 import at.ac.fhcampuswien.newsapi.NewsApi;
 import at.ac.fhcampuswien.newsapi.NewsApiException;
@@ -8,6 +9,7 @@ import at.ac.fhcampuswien.newsapi.beans.NewsResponse;
 import at.ac.fhcampuswien.newsapi.beans.Source;
 
 
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -62,24 +64,16 @@ public class Controller {
 
 
         if (articles != null && !articles.isEmpty()){
-            if (option.equals("e")){
-                downloadLastSearch(articles);
-            }
-            analyzeArticles(articles);
+            downloadLastSearch(articles, option);
+            //analyzeArticles(articles);
         }
 
         System.out.println("End process");
     }
 
     public void analyzeArticles (List<Article> articles){
-        //assert articles != null;
-        //if (articles.size() != 0) {
-			/*articles.stream()
-					.forEach(article -> System.out.println(article.toString()));*/
-
         //articles could be null because initialized with null & might not be updated if exception is thrown
         if (articles != null && !articles.isEmpty()) {
-
             System.out.println("Articles: ");
             articles.stream()
                     .forEach(article -> {
@@ -90,10 +84,7 @@ public class Controller {
                         System.out.println();
                     });
 
-
-
-		/*	if (!articles.isEmpty()) {
-				try {
+            try {
 					Article writeArticle;
 					writeArticle = articles.get(0);
 					//articleURL = writeArticle.getUrl();
@@ -104,12 +95,9 @@ public class Controller {
 					System.out.println("Articles cannot be NULL.");
 					nullPointerException.printStackTrace();
 				} catch (Exception e) {
-					System.out.println("Something went wrong.");
+					System.out.println("An error occured. Please check Stack Trace for further information");
 					e.printStackTrace();
 				}
-			}*/
-
-            //TODO implement methods for analysis
 
             //count number of articles
             //sum = articles.size();
@@ -117,9 +105,6 @@ public class Controller {
                     .count();
             System.out.println("Number of articles: " + sum);
 
-/*
-			//get provider with most articles
-			//gelöst anhand Unterlagen/Internetquellen wie zB:
 			//https://mkyong.com/java8/java-8-collectors-groupingby-and-mapping-example/
 			String providesMostArticles = getProviderWithMostArticles(articles);
 			System.out.println("Provides most Articles: " + providesMostArticles);
@@ -128,8 +113,7 @@ public class Controller {
 			String shortestAuthorName = getShortestAuthorName(articles);
 			System.out.println("Has shortest Name:" +shortestAuthorName);
 
-			// d? - was ist das gewünschte Ergebnis
-
+            //sort articles
 			List<Article> sortedList = getSortedList(articles);
 			if (sortedList.get(0).getTitle().equals("no title")) {
 				System.out.println("Sorted List not found");
@@ -138,12 +122,10 @@ public class Controller {
 				sortedList.forEach(article ->
 						System.out.println( article.getTitle())
 				);
-			}*/
+			}
         } else {
             System.out.println("Problems analyzing your article.");
         }
-
-
     }
 
     public String getProviderWithMostArticles(List<Article> articles) {
@@ -162,16 +144,18 @@ public class Controller {
         return curArt.isPresent() ? curArt.get().toString() : "Provider not found";
     }
 
-    public void downloadLastSearch(List<Article> articles) {
+    public void downloadLastSearch(List<Article> articles, String choice) {
         List<String> urls = getListofURLs(articles);
         System.out.println(urls);
-        //ca 3 secs für 20 artikel
-          /*  ParallelDownloader parallelDownloader = new ParallelDownloader();
-            parallelDownloader.process(urls);*/
-
-        //ca 13 secs für 20 Artikel
-        SequentialDownloader sequentialDownloader = new SequentialDownloader();
-        sequentialDownloader.process(urls);
+        if (choice.equals("p")) {
+            //ca 3 secs für 20 artikel
+            ParallelDownloader parallelDownloader = new ParallelDownloader();
+            parallelDownloader.process(urls);
+        } else if (choice.equals("s")) {
+            //ca 13 secs für 20 Artikel
+            SequentialDownloader sequentialDownloader = new SequentialDownloader();
+            sequentialDownloader.process(urls);
+        }
     }
 
     public String getShortestAuthorName(List<Article> articles) {

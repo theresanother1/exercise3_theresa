@@ -111,9 +111,18 @@ public class UserInterface
 		return customCat;
 	}
 
-	public void downloadLastSearch(){
-			ctrl.process("e");
+	public void downloadLastSearch() {
+		Scanner userChooses = new Scanner(System.in);
+		System.out.println("Please choose: ");
+		System.out.println("p: Parallel Download");
+		System.out.println("s: Sequential Download");
+		String userChoice = userChooses.nextLine();
+		if (userChoice.equals("p") || userChoice.equals("s")) {
+			ctrl.process(userChoice);
+		} else {
+			System.out.println("please use a valid choice");
 		}
+	}
 
 	public void start() {
 		Menu<Runnable> menu = new Menu<>("User Interface");
